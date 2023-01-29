@@ -6,6 +6,9 @@ using System;
 
 namespace RfidCreateAuth;
 
+/// <summary>
+/// This service is responsable for all communication to the Table Storage
+/// </summary>
 public class TableService : ITableService
 {
     private readonly CloudTableWrapper _table;
@@ -18,6 +21,11 @@ public class TableService : ITableService
         _table = new CloudTableWrapper(tableClient.GetTableReference(TABLE_REFERENCE));
     }
 
+    /// <summary>
+    /// Check if given tag exists in the table storage
+    /// </summary>
+    /// <param name="tag">The string to check for</param>
+    /// <returns></returns>
     public async Task<bool> TagExists(string tag)
     {
         // Retrieve the tag from storage
@@ -27,6 +35,12 @@ public class TableService : ITableService
         return retrieveResult.Result is not null;
     }
 
+    /// <summary>
+    /// Tries to insert a new string into the table storage.
+    /// Checks first if the string already exists in the table storage
+    /// </summary>
+    /// <param name="tag">The string to insert</param>
+    /// <returns></returns>
     public async Task<bool> TagInsert(string tag)
     {
         if (await TagExists(tag))

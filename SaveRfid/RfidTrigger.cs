@@ -19,24 +19,34 @@ namespace RfidCreateAuth
             _tableService = tableService;
         }
 
+        /// <summary>
+        /// Creates a new tag in a storage table.
+        /// It checks if the request body is empty and if the tag property in the request body is empty.
+        /// If either of these conditions are true, it returns a bad request error.
+        /// If the tag does not already exist in the storage table, it is inserted and the function returns a success message.
+        /// If the tag already exists, it returns a bad request error.
+        /// </summary>
+        /// <param name="req"></param>
+        /// <param name="log"></param>
+        /// <returns></returns>
         [FunctionName("Create")]
         public async Task<IActionResult> RunCreate(
             [HttpTrigger(AuthorizationLevel.Function, "post", Route = null)] HttpRequest req,
             ILogger log)
         {
-            // Parse the request body for the tag
             if (req.Body == null) return new BadRequestObjectResult("Request body was empty");
 
+            // Parse the request body for the tag
             var requestBody = await new StreamReader(req.Body).ReadToEndAsync();
             dynamic data = JsonConvert.DeserializeObject(requestBody);
             string tag = data?.tag;
 
-            // Validate the tag
             if (string.IsNullOrWhiteSpace(tag))
             {
                 return new BadRequestObjectResult("The property 'Tag' was empty");
             }
             
+            // Try and insert tag into storage table if it doesnt already exist
             var success = await _tableService.TagInsert(tag);
             if (!success)
             {
@@ -49,6 +59,12 @@ namespace RfidCreateAuth
             return new OkObjectResult("RFID inserted successfully");
         }
 
+        /// <summary>
+        /// Retrieves a string value from the query string of the request, and checks it exists in a storage table.
+        /// </summary>
+        /// <param name="req"></param>
+        /// <param name="log"></param>
+        /// <returns></returns>
         [FunctionName("Authentication")]
         public async Task<IActionResult> RunAuthentication(
             [HttpTrigger(AuthorizationLevel.Function, "get", Route = null)]

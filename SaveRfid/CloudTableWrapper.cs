@@ -4,6 +4,9 @@ using Microsoft.WindowsAzure.Storage.Table;
 
 namespace RfidCreateAuth;
 
+/// <summary>
+/// This is a wrapper so CloudTable is mockable
+/// </summary>
 public class CloudTableWrapper : ICloudTable
 {
     private readonly CloudTable _cloudTable;
